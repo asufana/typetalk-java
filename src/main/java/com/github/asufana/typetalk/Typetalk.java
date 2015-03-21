@@ -3,22 +3,13 @@ package com.github.asufana.typetalk;
 import java.io.*;
 import java.util.*;
 
-import org.apache.http.*;
-import org.apache.http.client.*;
-import org.apache.http.client.entity.*;
-import org.apache.http.client.methods.*;
-import org.apache.http.impl.client.*;
-import org.apache.http.message.*;
-import org.apache.http.util.*;
-
 import com.google.gson.*;
 import com.google.gson.reflect.*;
+import com.squareup.okhttp.*;
 
 public class Typetalk {
     
-    //TODO chenge HttpClient to okHttp
-    
-    final HttpClient client = HttpClientBuilder.create().build();
+    private final OkHttpClient client = new OkHttpClient();
     private static final String BASE_URL = "https://typetalk.in";
     private final String clientId;
     private final String clientSecret;
@@ -27,27 +18,27 @@ public class Typetalk {
     public Typetalk(final String clientId, final String clientSecret) {
         this.clientId = clientId;
         this.clientSecret = clientSecret;
-        this.accessToken = connect();
+        accessToken = connect();
     }
     
     private String connect() {
-        final List<NameValuePair> tokenParams = Arrays.asList(new BasicNameValuePair("client_id",
-                                                                                     clientId),
-                                                              new BasicNameValuePair("client_secret",
-                                                                                     clientSecret),
-                                                              new BasicNameValuePair("grant_type",
-                                                                                     "client_credentials"),
-                                                              new BasicNameValuePair("scope",
-                                                                                     "my"));
-        
-        final HttpPost tokenPost = new HttpPost(BASE_URL
-                + "/oauth2/access_token");
-        
+        final RequestBody formBody = new FormEncodingBuilder().add("client_id",
+                                                                   clientId)
+                                                              .add("client_secret",
+                                                                   clientSecret)
+                                                              .add("grant_type",
+                                                                   "client_credentials")
+                                                              .add("scope",
+                                                                   "my")
+                                                              .build();
+        final Request request = new Request.Builder().url(BASE_URL
+                + "/oauth2/access_token")
+                                                     .post(formBody)
+                                                     .build();
         try {
-            tokenPost.setEntity(new UrlEncodedFormEntity(tokenParams));
-            final HttpResponse response = client.execute(tokenPost);
-            final Map<String, String> json = new Gson().fromJson(EntityUtils.toString(response.getEntity(),
-                                                                                      "UTF-8"),
+            final Response response = client.newCall(request).execute();
+            final String jsonString = response.body().string();
+            final Map<String, String> json = new Gson().fromJson(jsonString,
                                                                  new TypeToken<Map<String, String>>() {}.getType());
             return json.get("access_token");
         }
@@ -57,13 +48,16 @@ public class Typetalk {
     }
     
     public void profile() {
-        final HttpGet request = new HttpGet(BASE_URL + "/api/v1/profile");
-        request.addHeader("Authorization", "Bearer " + accessToken);
-        HttpResponse profileResponse;
+        final Request request = new Request.Builder().url(BASE_URL
+                + "/api/v1/profile")
+                                                     .addHeader("Authorization",
+                                                                "Bearer "
+                                                                        + accessToken)
+                                                     .build();
+        
         try {
-            profileResponse = client.execute(request);
-            System.out.println(EntityUtils.toString(profileResponse.getEntity(),
-                                                    "UTF-8"));
+            final Response response = client.newCall(request).execute();
+            System.out.println(response.body().string());
         }
         catch (final IOException e) {
             throw new RuntimeException(e);
