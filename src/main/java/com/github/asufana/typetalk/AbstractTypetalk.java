@@ -28,4 +28,9 @@ public class AbstractTypetalk {
         return new Gson().fromJson(response.body().string(), token.getType());
     }
     
+    @FunctionalInterface
+    protected interface ResponseCallback<R> {
+        R apply(final Response response) throws IOException;
+    }
+    
 }
