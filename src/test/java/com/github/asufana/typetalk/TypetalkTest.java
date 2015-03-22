@@ -1,7 +1,13 @@
 package com.github.asufana.typetalk;
 
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
+
 import org.junit.*;
 
+import com.github.asufana.typetalk.exceptions.*;
+import com.github.asufana.typetalk.resources.*;
+import com.github.asufana.typetalk.utils.Validator.ValidatorException;
 import com.squareup.okhttp.*;
 
 public class TypetalkTest {
@@ -9,19 +15,28 @@ public class TypetalkTest {
     public static final String CLIENT_ID = "RW7Xi2PKyGMtzoOPIu3qxYe02gMcPfGQ";
     public static final String CLIENT_SECRET = "RDDGLi3kEBHv041MiotTbEQovHig8AL03eEgprhG8xQLPW6U9MxiLcahm2lPDlCB";
     
-    @Test(expected = RuntimeException.class)
-    public void testConnectionError() throws Exception {
-        new InvalidConnectParamsTypetalk(CLIENT_ID, CLIENT_SECRET);
-    }
-    
     @Test
     public void test() {
         final Typetalk typetalk = new Typetalk(CLIENT_ID, CLIENT_SECRET);
-        typetalk.profile();
+        final Account account = typetalk.profile();
+        assertThat(account, is(notNullValue()));
+        System.out.println(account);
     }
     
-    static class InvalidConnectParamsTypetalk extends Typetalk {
-        public InvalidConnectParamsTypetalk(final String clientId,
+    //------------------------
+    
+    @Test(expected = ValidatorException.class)
+    public void testConstructorException() throws Exception {
+        new Typetalk(null, null);
+    }
+    
+    @Test(expected = TypetalkException.class)
+    public void testConnectionError() throws Exception {
+        new InvalidConnectParamsOne(CLIENT_ID, CLIENT_SECRET);
+    }
+    
+    static class InvalidConnectParamsOne extends Typetalk {
+        public InvalidConnectParamsOne(final String clientId,
                 final String clientSecret) {
             super(clientId, clientSecret);
         }

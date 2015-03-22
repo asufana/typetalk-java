@@ -1,15 +1,21 @@
 package com.github.asufana.typetalk;
 
-import java.io.*;
 import java.util.*;
 
-import com.google.gson.*;
+import org.apache.commons.lang3.*;
+
+import com.github.asufana.typetalk.exceptions.*;
+import com.github.asufana.typetalk.resources.*;
+import com.github.asufana.typetalk.utils.*;
 import com.google.gson.reflect.*;
 import com.squareup.okhttp.*;
 
-public class Typetalk {
-    private final OkHttpClient client = new OkHttpClient();
-    
+//TDDO maven run
+//http://www.mastertheboss.com/jboss-web/jbosswebserver/undertow-web-server-tutorial
+//http://emamotor.blogspot.jp/2013/12/introduction-undertow.html
+//mvn clean compile exec:java -Dexec.mainClass=org.emamotor.undertow.practice.HelloWorldServer
+
+public class Typetalk extends AbstractTypetalk {
     private static final String BASE_URL = "https://typetalk.in";
     private static final String CONNECT_URL = BASE_URL + "/oauth2/access_token";
     
@@ -18,28 +24,31 @@ public class Typetalk {
     private final String accessToken;
     
     public Typetalk(final String clientId, final String clientSecret) {
+        Validator.on(clientId).notNull("ClientId");
+        Validator.on(clientSecret).notNull("ClientSecret");
         this.clientId = clientId;
         this.clientSecret = clientSecret;
         accessToken = connect();
+    }
+    
+    private String accessToken() {
+        if (StringUtils.isEmpty(accessToken)) {
+            throw new TypetalkException("アクセストークンが取得されていません");
+        }
+        return accessToken;
     }
     
     private String connect() {
         final Request request = new Request.Builder().url(CONNECT_URL)
                                                      .post(connectParams())
                                                      .build();
-        try {
-            final Response response = client.newCall(request).execute();
-            if (response.code() != 200) {
-                throw new RuntimeException(response.body().string());
-            }
-            final Map<String, String> json = new Gson().fromJson(response.body()
-                                                                         .string(),
-                                                                 new TypeToken<Map<String, String>>() {}.getType());
-            return json.get("access_token");
-        }
-        catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
+        
+        return execute(request,
+                       response -> {
+                           final Map<String, String> jsonMap = convert(response,
+                                                                       new TypeToken<Map<String, String>>() {});
+                           return jsonMap.get("access_token");
+                       });
     }
     
     protected RequestBody connectParams() {
@@ -50,20 +59,18 @@ public class Typetalk {
                                         .build();
     }
     
-    public void profile() {
-        final Request request = new Request.Builder().url(BASE_URL
-                + "/api/v1/profile")
+    public Account profile() {
+        final String url = BASE_URL + "/api/v1/profile";
+        final String accessTokenHeader = "Bearer " + accessToken();
+        final Request request = new Request.Builder().url(url)
                                                      .addHeader("Authorization",
-                                                                "Bearer "
-                                                                        + accessToken)
+                                                                accessTokenHeader)
                                                      .build();
         
-        try {
-            final Response response = client.newCall(request).execute();
-            System.out.println(response.body().string());
-        }
-        catch (final IOException e) {
-            throw new RuntimeException(e);
-        }
+        final Profile profile = execute(request, response -> {
+            return convert(response, new TypeToken<Profile>() {});
+        });
+        return profile.account();
     }
+    
 }
