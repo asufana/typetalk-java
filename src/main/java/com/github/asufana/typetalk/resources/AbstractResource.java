@@ -6,8 +6,7 @@ import org.joda.time.format.*;
 public abstract class AbstractResource {
     
     protected DateTime toDateTime(final String isoDateTimeFormatString) {
-        return ISODateTimeFormat.dateTime()
+        return ISODateTimeFormat.dateTimeNoMillis()
                                 .parseDateTime(isoDateTimeFormatString);
     }
-    
 }

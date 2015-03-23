@@ -20,6 +20,7 @@ public class TypetalkTest {
         final Typetalk typetalk = new Typetalk(CLIENT_ID, CLIENT_SECRET);
         final Account account = typetalk.profile();
         assertThat(account, is(notNullValue()));
+        assertThat(account.createdAt(), is(notNullValue()));
         System.out.println(account);
     }
     

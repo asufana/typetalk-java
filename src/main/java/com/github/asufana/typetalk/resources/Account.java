@@ -2,6 +2,8 @@ package com.github.asufana.typetalk.resources;
 
 import lombok.*;
 
+import org.joda.time.*;
+
 @Value
 @EqualsAndHashCode(callSuper = true)
 public class Account extends AbstractResource {
@@ -22,11 +24,11 @@ public class Account extends AbstractResource {
     //e.g. "updatedAt":"2015-03-21T07:05:14Z"
     private String updatedAt;
     
-//    public DateTime createdAt() {
-//        return toDateTime(createdAt);
-//    }
-//
-//    public DateTime updatedAt() {
-//        return toDateTime(updatedAt);
-//    }
+    public DateTime createdAt() {
+        return toDateTime(createdAt);
+    }
+    
+    public DateTime updatedAt() {
+        return toDateTime(updatedAt);
+    }
 }
