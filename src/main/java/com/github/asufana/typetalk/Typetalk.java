@@ -6,6 +6,7 @@ import org.apache.commons.lang3.*;
 
 import com.github.asufana.typetalk.exceptions.*;
 import com.github.asufana.typetalk.resources.*;
+import com.github.asufana.typetalk.resources.AccountResource.Account;
 import com.github.asufana.typetalk.utils.*;
 import com.google.gson.reflect.*;
 import com.squareup.okhttp.*;
@@ -31,7 +32,7 @@ public class Typetalk extends AbstractTypetalk {
         accessToken = connect();
     }
     
-    private String accessToken() {
+    public String accessToken() {
         if (StringUtils.isEmpty(accessToken)) {
             throw new TypetalkException("アクセストークンが取得されていません");
         }
@@ -60,17 +61,27 @@ public class Typetalk extends AbstractTypetalk {
     }
     
     public Account profile() {
-        final String url = BASE_URL + "/api/v1/profile";
-        final String accessTokenHeader = "Bearer " + accessToken();
-        final Request request = new Request.Builder().url(url)
-                                                     .addHeader("Authorization",
-                                                                accessTokenHeader)
-                                                     .build();
-        
-        final Profile profile = execute(request, response -> {
-            return convert(response, new TypeToken<Profile>() {});
+        final Request request = createRequest(BASE_URL + "/api/v1/profile");
+        final AccountResource resource = execute(request, response -> {
+            return convert(response, new TypeToken<AccountResource>() {});
         });
-        return profile.account();
+        return resource.account();
+    }
+    
+    public List<TopicResource> topics() {
+        final Request request = createRequest(BASE_URL + "/api/v1/topics");
+        final TopicListResource listResource = execute(request, response -> {
+            return convert(response, new TypeToken<TopicListResource>() {});
+        });
+        return listResource.topics();
+    }
+    
+    private Request createRequest(final String url) {
+        final String accessTokenHeader = "Bearer " + accessToken();
+        return new Request.Builder().url(url)
+                                    .addHeader("Authorization",
+                                               accessTokenHeader)
+                                    .build();
     }
     
 }

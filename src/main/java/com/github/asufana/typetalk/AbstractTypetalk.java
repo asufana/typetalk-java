@@ -25,7 +25,9 @@ public class AbstractTypetalk {
     }
     
     protected <T> T convert(final Response response, final TypeToken<T> token) throws IOException {
-        return new Gson().fromJson(response.body().string(), token.getType());
+        final String json = response.body().string();
+        System.out.println("JSON:" + json);
+        return new Gson().fromJson(json, token.getType());
     }
     
     @FunctionalInterface
