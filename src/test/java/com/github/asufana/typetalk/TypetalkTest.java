@@ -40,6 +40,16 @@ public class TypetalkTest {
         System.out.println("OBJECT:" + resouces);
     }
     
+    @Test
+    public void testTalkList() {
+        final Integer topicId = typetalk.topics().get(0).topic().id();
+        assertThat(topicId, is(notNullValue()));
+        
+        final List<TalkResource> resouces = typetalk.talks(topicId);
+        assertThat(resouces.size(), is(not(0)));
+        System.out.println("OBJECT:" + resouces);
+    }
+    
     //------------------------
     
     @Test(expected = ValidatorException.class)

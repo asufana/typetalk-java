@@ -9,7 +9,7 @@ public class TopicResource {
     //see also: https://developer.nulab-inc.com/ja/docs/typetalk/api/1/get-topics
     
     private Topic topic;
-    private String favorite;
+    private Boolean favorite;
     private Unread unread;
     
     @Value

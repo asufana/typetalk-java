@@ -56,7 +56,8 @@ public class Typetalk extends AbstractTypetalk {
         return new FormEncodingBuilder().add("client_id", clientId)
                                         .add("client_secret", clientSecret)
                                         .add("grant_type", "client_credentials")
-                                        .add("scope", "my")
+                                        .add("scope",
+                                             "my, topic.read, topic.post, topic.write, topic.delete")
                                         .build();
     }
     
@@ -74,6 +75,21 @@ public class Typetalk extends AbstractTypetalk {
             return convert(response, new TypeToken<TopicListResource>() {});
         });
         return listResource.topics();
+    }
+    
+    public List<TalkResource> talks(final Integer topicId) {
+        if (topicId == null) {
+            throw new TypetalkException("TopicId is null");
+        }
+        
+        final Request request = createRequest(BASE_URL
+                + "/api/v1/topics/"
+                + topicId.toString()
+                + "/talks");
+        final TalkListResource listResource = execute(request, response -> {
+            return convert(response, new TypeToken<TalkListResource>() {});
+        });
+        return listResource.talks();
     }
     
     private Request createRequest(final String url) {
