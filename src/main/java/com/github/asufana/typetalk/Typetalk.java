@@ -3,10 +3,10 @@ package com.github.asufana.typetalk;
 import java.util.*;
 
 import org.apache.commons.lang3.*;
+import org.json.*;
 
 import com.github.asufana.typetalk.exceptions.*;
 import com.github.asufana.typetalk.resources.*;
-import com.github.asufana.typetalk.resources.AccountResource.Account;
 import com.github.asufana.typetalk.utils.*;
 import com.google.gson.reflect.*;
 import com.squareup.okhttp.*;
@@ -61,20 +61,28 @@ public class Typetalk extends AbstractTypetalk {
                                         .build();
     }
     
-    public Account profile() {
+    public AccountResource profile() {
         final Request request = createRequest(BASE_URL + "/api/v1/profile");
-        final AccountResource resource = execute(request, response -> {
-            return convert(response, new TypeToken<AccountResource>() {});
-        });
-        return resource.account();
+        return execute(request,
+                       response -> {
+                           final String jsonStr = response.body().string();
+                           final String filteredJsonStr = new JSONObject(jsonStr).getJSONObject("account")
+                                                                                 .toString();
+                           return convert(filteredJsonStr,
+                                          new TypeToken<AccountResource>() {});
+                       });
     }
     
     public List<TopicResource> topics() {
         final Request request = createRequest(BASE_URL + "/api/v1/topics");
-        final TopicListResource listResource = execute(request, response -> {
-            return convert(response, new TypeToken<TopicListResource>() {});
-        });
-        return listResource.topics();
+        return execute(request,
+                       response -> {
+                           final String jsonStr = response.body().string();
+                           final String filteredJsonStr = new JSONObject(jsonStr).getJSONArray("topics")
+                                                                                 .toString();
+                           return convert(filteredJsonStr,
+                                          new TypeToken<List<TopicResource>>() {});
+                       });
     }
     
     public List<TalkResource> talks(final Integer topicId) {
@@ -86,10 +94,23 @@ public class Typetalk extends AbstractTypetalk {
                 + "/api/v1/topics/"
                 + topicId.toString()
                 + "/talks");
-        final TalkListResource listResource = execute(request, response -> {
-            return convert(response, new TypeToken<TalkListResource>() {});
+        return execute(request,
+                       response -> {
+                           final String jsonStr = response.body().string();
+                           final String filteredJsonStr = new JSONObject(jsonStr).getJSONArray("talks")
+                                                                                 .toString();
+                           return convert(filteredJsonStr,
+                                          new TypeToken<List<TalkResource>>() {});
+                       });
+    }
+    
+    public List<AccountResource> accounts() {
+        final Request request = createRequest(BASE_URL
+                + "/api/v1/search/friends");
+        final AccountListResource listResource = execute(request, response -> {
+            return convert(response, new TypeToken<AccountListResource>() {});
         });
-        return listResource.talks();
+        return listResource.accounts();
     }
     
     private Request createRequest(final String url) {

@@ -5,6 +5,6 @@ import java.util.*;
 import lombok.*;
 
 @Getter
-public class TopicListResource {
-    private List<TopicResource> topics;
+public class AccountListResource {
+    private List<AccountResource> accounts;
 }

@@ -26,6 +26,10 @@ public class AbstractTypetalk {
     
     protected <T> T convert(final Response response, final TypeToken<T> token) throws IOException {
         final String json = response.body().string();
+        return convert(json, token);
+    }
+    
+    protected <T> T convert(final String json, final TypeToken<T> token) throws IOException {
         System.out.println("JSON:" + json);
         return new Gson().fromJson(json, token.getType());
     }

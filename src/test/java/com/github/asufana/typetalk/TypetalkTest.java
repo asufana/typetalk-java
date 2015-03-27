@@ -8,7 +8,6 @@ import java.util.*;
 import org.junit.*;
 
 import com.github.asufana.typetalk.exceptions.*;
-import com.github.asufana.typetalk.resources.AccountResource.Account;
 import com.github.asufana.typetalk.resources.*;
 import com.github.asufana.typetalk.utils.Validator.ValidatorException;
 import com.squareup.okhttp.*;
@@ -27,7 +26,7 @@ public class TypetalkTest {
     
     @Test
     public void testProfile() {
-        final Account account = typetalk.profile();
+        final AccountResource account = typetalk.profile();
         assertThat(account, is(notNullValue()));
         assertThat(account.createdAt(), is(notNullValue()));
         System.out.println("OBJECT:" + account);
@@ -46,6 +45,13 @@ public class TypetalkTest {
         assertThat(topicId, is(notNullValue()));
         
         final List<TalkResource> resouces = typetalk.talks(topicId);
+        assertThat(resouces.size(), is(not(0)));
+        System.out.println("OBJECT:" + resouces);
+    }
+    
+    @Test
+    public void testAccountList() {
+        final List<AccountResource> resouces = typetalk.accounts();
         assertThat(resouces.size(), is(not(0)));
         System.out.println("OBJECT:" + resouces);
     }
