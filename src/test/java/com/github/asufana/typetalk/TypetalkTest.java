@@ -25,6 +25,7 @@ public class TypetalkTest {
     }
     
     @Test
+    //プロフィールの取得
     public void testProfile() {
         final AccountResource account = typetalk.profile();
         assertThat(account, is(notNullValue()));
@@ -33,6 +34,7 @@ public class TypetalkTest {
     }
     
     @Test
+    //トピック一覧の取得
     public void testTopicList() {
         final List<TopicResource> resouces = typetalk.topics();
         assertThat(resouces.size(), is(not(0)));
@@ -40,6 +42,15 @@ public class TypetalkTest {
     }
     
     @Test
+    //友人を取得
+    public void testAccountList() {
+        final List<AccountResource> resouces = typetalk.accounts();
+        assertThat(resouces.size(), is(not(0)));
+        System.out.println("OBJECT:" + resouces);
+    }
+    
+    @Test
+    //まとめ一覧の取得
     public void testTalkList() {
         final Integer topicId = typetalk.topics().get(0).topic().id();
         assertThat(topicId, is(notNullValue()));
@@ -50,10 +61,14 @@ public class TypetalkTest {
     }
     
     @Test
-    public void testAccountList() {
-        final List<AccountResource> resouces = typetalk.accounts();
-        assertThat(resouces.size(), is(not(0)));
-        System.out.println("OBJECT:" + resouces);
+    //トピックメンバーの取得
+    public void testMemberList() {
+        final Integer topicId = typetalk.topics().get(0).topic().id();
+        assertThat(topicId, is(notNullValue()));
+        
+        final List<MemberResource> members = typetalk.members(topicId);
+        assertThat(members.size(), is(not(0)));
+        System.out.println("OBJECT:" + members);
     }
     
     //------------------------

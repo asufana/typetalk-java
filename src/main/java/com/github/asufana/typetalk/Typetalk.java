@@ -85,6 +85,19 @@ public class Typetalk extends AbstractTypetalk {
                        });
     }
     
+    public List<AccountResource> accounts() {
+        final Request request = createRequest(BASE_URL
+                + "/api/v1/search/friends");
+        return execute(request,
+                       response -> {
+                           final String jsonStr = response.body().string();
+                           final String filteredJsonStr = new JSONObject(jsonStr).getJSONArray("accounts")
+                                                                                 .toString();
+                           return convert(filteredJsonStr,
+                                          new TypeToken<List<AccountResource>>() {});
+                       });
+    }
+    
     public List<TalkResource> talks(final Integer topicId) {
         if (topicId == null) {
             throw new TypetalkException("TopicId is null");
@@ -104,16 +117,22 @@ public class Typetalk extends AbstractTypetalk {
                        });
     }
     
-    public List<AccountResource> accounts() {
+    public List<MemberResource> members(final Integer topicId) {
+        if (topicId == null) {
+            throw new TypetalkException("TopicId is null");
+        }
+        
         final Request request = createRequest(BASE_URL
-                + "/api/v1/search/friends");
+                + "/api/v1/topics/"
+                + topicId.toString()
+                + "/members/status");
         return execute(request,
                        response -> {
                            final String jsonStr = response.body().string();
                            final String filteredJsonStr = new JSONObject(jsonStr).getJSONArray("accounts")
                                                                                  .toString();
                            return convert(filteredJsonStr,
-                                          new TypeToken<List<AccountResource>>() {});
+                                          new TypeToken<List<MemberResource>>() {});
                        });
     }
     
