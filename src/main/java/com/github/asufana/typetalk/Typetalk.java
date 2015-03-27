@@ -107,10 +107,14 @@ public class Typetalk extends AbstractTypetalk {
     public List<AccountResource> accounts() {
         final Request request = createRequest(BASE_URL
                 + "/api/v1/search/friends");
-        final AccountListResource listResource = execute(request, response -> {
-            return convert(response, new TypeToken<AccountListResource>() {});
-        });
-        return listResource.accounts();
+        return execute(request,
+                       response -> {
+                           final String jsonStr = response.body().string();
+                           final String filteredJsonStr = new JSONObject(jsonStr).getJSONArray("accounts")
+                                                                                 .toString();
+                           return convert(filteredJsonStr,
+                                          new TypeToken<List<AccountResource>>() {});
+                       });
     }
     
     private Request createRequest(final String url) {
